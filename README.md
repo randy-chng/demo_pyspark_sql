@@ -1,1 +1,1 @@
-Covers common data manipulation features of PySpark
+Covers common data manipulation activities using PySpark
