@@ -3,6 +3,7 @@ import pandas as pd
 from pyspark.sql import SparkSession
 from pyspark.sql.types import DoubleType
 from pyspark.sql import functions as F
+from pyspark.sql import Window
 
 # Get current working directory
 cwd = os.getcwd()
@@ -87,14 +88,41 @@ df = df.withColumn(
     )
 )
 
-# Grouping and aggregating
+# Balances summary by education and marital
 df.groupby(
-    'job'
+    'education',
+    'marital'
 ).agg(
-    F.sum('balance').alias('tot_balance')
-).sort(
-    'tot_balance',
-    ascending=False
+    F.count('job').alias('tot_population'),
+    F.sum('balance').alias('tot_balance'),
+    F.round(F.avg('balance'), 2).alias('avg_balance'),
+    F.min('balance').alias('min_balance'),
+    F.max('balance').alias('max_balance')
+).orderBy(
+    F.asc('education'),
+    F.desc('marital')
+).show()
+
+# Top 3 balance by marital
+df.withColumn(
+    'rank',
+    F.dense_rank().over(
+        Window.partitionBy(
+            'marital'
+        ).orderBy(
+            F.desc('balance')
+        )
+    )
+).filter(
+    F.col('rank') < 4
+).orderBy(
+    F.desc('marital')
+).select(
+    'marital',
+    'job',
+    'age',
+    'balance',
+    'rank'
 ).show()
 
 # Create new column for negative balance check
@@ -108,7 +136,7 @@ df = df.withColumn(
     )
 )
 
-# Check of negative balance is a one-off or common occurrence
+# Check if negative balance is a one-off or common occurrence
 df.groupby(
     'negative_balance'
 ).count().show()
@@ -155,4 +183,5 @@ df = df.union(df)
 # Deduplicate dataframe
 df = df.dropDuplicates()
 
-
+# Stop spark
+spark.stop()
