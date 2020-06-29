@@ -13,4 +13,5 @@ Areas covered
 - Conditional manipulation (if... else...)
 - Aggregation manipulation (group by...)
 - Window manipulation (dense_rank...)
+- String manipulation (upper, lower, concatenate...)
 - Join manipulation (inner join...)
