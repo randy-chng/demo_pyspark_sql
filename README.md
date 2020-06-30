@@ -15,3 +15,4 @@ Areas covered
 - Window manipulation (dense_rank...)
 - String manipulation (upper, lower, concatenate...)
 - Join manipulation (inner join...)
+- Reading data from MySQL database
